@@ -29,7 +29,7 @@
 </script>
 
 <nav class="container mx-auto mb-4 border-b-2 border-b-base-300 px-2 pb-4">
-	<section class="my-4 flex justify-between items-center">
+	<section class="my-4 flex items-center justify-between">
 		<button
 			class="btn-ghost btn-square btn visible xl:invisible"
 			on:click={() => (showNavbar = !showNavbar)}
@@ -63,11 +63,11 @@
 		</div>
 
 		<div class="flex justify-center xl:block xl:justify-end" class:hidden={!showNavbar}>
-			<button on:click={handleLogout} class="btn-ghost btn" class:hidden={!data.session}>
+			<button on:click={handleLogout} class="btn-ghost btn-block btn" class:hidden={!data.session}>
 				Sign Out
 			</button>
 
-			<a href="/login" class="btn-ghost btn" class:hidden={data.session}>Sign In</a>
+			<a href="/login" class="btn-ghost btn-block btn" class:hidden={data.session}>Sign In</a>
 		</div>
 	</section>
 </nav>
