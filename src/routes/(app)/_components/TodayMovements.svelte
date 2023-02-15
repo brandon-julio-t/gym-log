@@ -4,9 +4,25 @@
 	import 'crypto';
 	import type { PageData } from '../$types';
 	import syncMovements from '../_logics/syncMovements';
-	import { currentMovement } from '../_stores/currentMovement';
+	import { movementForm } from '../_stores/movementForm';
 
 	export let data: PageData;
+
+	function handleEdit(movement: IMovementTransaction) {
+		movementForm.update((form) => ({
+			...form,
+			isEdit: true,
+			movement: movement
+		}));
+	}
+
+	function handleCopy(movement: IMovementTransaction) {
+		movementForm.update((form) => ({
+			...form,
+			isEdit: false,
+			movement
+		}));
+	}
 
 	function handleDelete(movement: IMovementTransaction) {
 		if (!confirm('Are you sure to delete?')) return;
@@ -14,13 +30,6 @@
 		syncMovements(data.session, newMovements);
 		invalidateAll();
 		alert('Movement removed!');
-	}
-
-	function handleCopy(movement: IMovementTransaction) {
-		currentMovement.update((m) => {
-			if (m) return { ...m, ...movement };
-			return movement;
-		});
 	}
 </script>
 
@@ -50,11 +59,17 @@
 										<td>{movement.reps} times</td>
 										<td>{movement.weight} kg</td>
 										<td>
+											<button on:click={() => handleEdit(movement)} class="btn-secondary btn">
+												Edit
+											</button>
+											<button
+												on:click={() => handleCopy(movement)}
+												class="btn-outline btn-ghost btn"
+											>
+												Copy
+											</button>
 											<button on:click={() => handleDelete(movement)} class="btn-error btn">
 												Delete
-											</button>
-											<button on:click={() => handleCopy(movement)} class="btn-outline btn-ghost btn">
-												Copy
 											</button>
 										</td>
 									</tr>
