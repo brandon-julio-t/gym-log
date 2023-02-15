@@ -75,8 +75,8 @@
 
 <div class="my-8 grid grid-cols-1 gap-4">
 	<form on:submit|preventDefault={handleSubmit} class="card bg-base-100 shadow-xl">
-		<div class="card-body grid grid-cols-1 gap-4 lg:grid-cols-12">
-			<section class="flex-col space-y-2 lg:col-span-6">
+		<div class="card-body grid grid-cols-1 gap-4 xl:grid-cols-12">
+			<section class="flex-col space-y-2 xl:col-span-6">
 				<label for="name">Movement name</label>
 				<input
 					type="text"
@@ -85,11 +85,17 @@
 					class="input-bordered input col-span-12 w-full"
 					placeholder="Movement name"
 					required
+					list="all-movements"
 					bind:value={name}
 				/>
+				<datalist id="all-movements">
+					{#each data.groupKeys as key}
+						<option value={key} />
+					{/each}
+				</datalist>
 			</section>
 
-			<section class="flex-col space-y-2 lg:col-span-2">
+			<section class="flex-col space-y-2 xl:col-span-2">
 				<label for="name">Reps</label>
 				<input
 					type="number"
@@ -102,7 +108,7 @@
 				/>
 			</section>
 
-			<section class="flex-col space-y-2 lg:col-span-2">
+			<section class="flex-col space-y-2 xl:col-span-2">
 				<label for="name">Weight (Kg)</label>
 				<input
 					type="number"
@@ -115,7 +121,7 @@
 				/>
 			</section>
 
-			<section class="flex items-end lg:col-span-2">
+			<section class="flex items-end justify-end xl:col-span-2">
 				<button class="btn-primary btn col-span-12 gap-2">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -134,10 +140,63 @@
 	</form>
 
 	<section class="card bg-base-100 shadow-xl">
-		<div class="card-body">
-			<h2 class="card-title">Today's movements</h2>
+		<div class="card-body flex flex-col space-y-4">
+			<h2 class="card-title">Today's Movements</h2>
 
-			<ul class="flex flex-col space-y-4">
+			{#each data.groupKeys as key}
+				<div class="card bg-base-100 shadow-xl">
+					<div class="card-body">
+						<h3 class="card-title mb-4 capitalize">{key}</h3>
+
+						<div class="overflow-x-auto">
+							<table class="table-zebra table w-full">
+								<thead>
+									<tr>
+										<th>Set #</th>
+										<th>Reps</th>
+										<th>Weight</th>
+										<th />
+									</tr>
+								</thead>
+								<tbody>
+									{#each data.groupedMovements.get(key) ?? [] as movement, i}
+										<tr>
+											<td>{i + 1}</td>
+											<td>{movement.reps} times</td>
+											<td>{movement.weight} kg</td>
+											<td>
+												<button
+													on:click={() => handleDelete(movement)}
+													class="btn-error btn-square btn"
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														fill="none"
+														viewBox="0 0 24 24"
+														stroke-width="1.5"
+														stroke="currentColor"
+														class="h-6 w-6"
+													>
+														<path
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															d="M6 18L18 6M6 6l12 12"
+														/>
+													</svg>
+												</button>
+											</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			{:else}
+				<div>No movements yet.</div>
+			{/each}
+
+			<!-- <ul class="flex flex-col space-y-4">
 				{#each movements as movement}
 					<li class="flex items-center space-x-2">
 						<div>
@@ -161,7 +220,7 @@
 				{:else}
 					<li>No movement yet for today.</li>
 				{/each}
-			</ul>
+			</ul> -->
 		</div>
 	</section>
 </div>
