@@ -1,6 +1,6 @@
 <script lang="ts">
 	import supabase from '$lib/supabaseClient';
-	import { env } from '$env/dynamic/public';
+	import { PUBLIC_APP_URL } from '$env/static/public';
 
 	let loading = false;
 	let email: string;
@@ -11,7 +11,7 @@
 		const { data, error } = await supabase.auth.signInWithOtp({
 			email,
 			options: {
-				emailRedirectTo: env.PUBLIC_APP_URL
+				emailRedirectTo: PUBLIC_APP_URL
 			}
 		});
 
