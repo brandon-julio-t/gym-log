@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type IMovementTransaction from '$lib/contracts/movement-transaction';
 	import supabase from '$lib/supabaseClient';
 	import 'crypto';
 	import type { PageData } from './$types';
@@ -19,16 +20,16 @@
 			created_at: new Date().toISOString()
 		};
 		movements = [...movements, newMovement];
-		alert('Movement added!');
 		syncMovements();
+		alert('Movement added!');
 	}
 
 	function handleDelete(movement: IMovementTransaction) {
 		if (!confirm('Are you sure to delete?')) return;
 		const filtered = movements.filter((m) => m.id !== movement.id);
 		movements = filtered;
-		alert('Movement removed!');
 		syncMovements();
+		alert('Movement removed!');
 	}
 
 	async function syncMovements() {
@@ -63,17 +64,9 @@
 		localStorage.setItem('movements', JSON.stringify(movements));
 		alert('Data synced!');
 	}
-
-	interface IMovementTransaction {
-		id: string;
-		created_at: string;
-		name: string;
-		reps: number;
-		weight: number;
-	}
 </script>
 
-<div class="my-8 grid grid-cols-1 gap-4">
+<div class="my-8 flex flex-col space-y-4">
 	<form on:submit|preventDefault={handleSubmit} class="card bg-base-100 shadow-xl">
 		<div class="card-body grid grid-cols-1 gap-4 xl:grid-cols-12">
 			<section class="flex-col space-y-2 xl:col-span-6">
@@ -85,11 +78,12 @@
 					class="input-bordered input col-span-12 w-full"
 					placeholder="Movement name"
 					required
-					list="all-movements"
 					bind:value={name}
+					list="ice-cream-flavors"
 				/>
 				<datalist id="all-movements">
-					{#each data.groupKeys as key}
+					<option value="cake" />
+					{#each data.groupedMovementKeys as key}
 						<option value={key} />
 					{/each}
 				</datalist>
@@ -143,7 +137,7 @@
 		<div class="card-body flex flex-col space-y-4">
 			<h2 class="card-title">Today's Movements</h2>
 
-			{#each data.groupKeys as key}
+			{#each data.groupedMovementKeys as key}
 				<div class="card bg-base-100 shadow-xl">
 					<div class="card-body">
 						<h3 class="card-title mb-4 capitalize">{key}</h3>
@@ -155,34 +149,18 @@
 										<th>Set #</th>
 										<th>Reps</th>
 										<th>Weight</th>
-										<th />
+										<th>Action</th>
 									</tr>
 								</thead>
 								<tbody>
 									{#each data.groupedMovements.get(key) ?? [] as movement, i}
 										<tr>
-											<td>{i + 1}</td>
+											<th>{i + 1}</th>
 											<td>{movement.reps} times</td>
 											<td>{movement.weight} kg</td>
 											<td>
-												<button
-													on:click={() => handleDelete(movement)}
-													class="btn-error btn-square btn"
-												>
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														fill="none"
-														viewBox="0 0 24 24"
-														stroke-width="1.5"
-														stroke="currentColor"
-														class="h-6 w-6"
-													>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															d="M6 18L18 6M6 6l12 12"
-														/>
-													</svg>
+												<button on:click={() => handleDelete(movement)} class="btn-error btn">
+													Delete
 												</button>
 											</td>
 										</tr>
@@ -195,32 +173,6 @@
 			{:else}
 				<div>No movements yet.</div>
 			{/each}
-
-			<!-- <ul class="flex flex-col space-y-4">
-				{#each movements as movement}
-					<li class="flex items-center space-x-2">
-						<div>
-							<button on:click={() => handleDelete(movement)} class="btn-error btn-square btn">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke-width="1.5"
-									stroke="currentColor"
-									class="h-6 w-6"
-								>
-									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-								</svg>
-							</button>
-						</div>
-						<div>
-							{movement.name} ({movement.reps}x @ {movement.weight}kg)
-						</div>
-					</li>
-				{:else}
-					<li>No movement yet for today.</li>
-				{/each}
-			</ul> -->
 		</div>
 	</section>
 </div>
