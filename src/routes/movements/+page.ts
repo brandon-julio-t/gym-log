@@ -15,7 +15,7 @@ export const load = (async (event) => {
 
 	const { data, error } = await supabaseClient
 		.from('movements')
-		.select()
+		.select('name, category')
 		.eq('user_id', session.user.id)
 		.order('name', { ascending: true });
 
