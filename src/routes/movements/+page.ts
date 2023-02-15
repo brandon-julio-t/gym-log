@@ -1,21 +1,29 @@
+import { getSupabase } from '@supabase/auth-helpers-sveltekit';
+import { redirect } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
-export const load = (({ params }) => {
-	const rawData = [
-		{ name: 'curl', category: 'pull' },
-		{ name: 'row', category: 'pull' },
-		{ name: 'lat pulldown', category: 'pull' },
-		{ name: 'hammer curl', category: 'pull' },
+interface IMovement {
+	name: string;
+	category: string;
+}
 
-		{ name: 'bench press', category: 'push' },
-		{ name: 'inclined bench press', category: 'push' },
-		{ name: 'tricep pushdown', category: 'push' },
-		{ name: 'shoulder press', category: 'push' },
+export const load = (async (event) => {
+	const { session, supabaseClient } = await getSupabase(event);
+	if (!session) {
+		throw redirect(303, '/login');
+	}
 
-		{ name: 'deadlift', category: 'leg' },
-		{ name: 'calf raises', category: 'leg' },
-		{ name: 'squat', category: 'leg' }
-	];
+	const { data, error } = await supabaseClient
+		.from('movements')
+		.select()
+		.eq('user_id', session.user.id)
+		.order('name', { ascending: true });
+
+		if (error) {
+		throw error;
+	}
+
+	const rawData: IMovement[] = data ?? [];
 
 	const movements = new Map<string, string[]>();
 
