@@ -2,14 +2,30 @@
 	import { invalidateAll } from '$app/navigation';
 	import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
 	import 'crypto';
+	import { onMount } from 'svelte';
 	import type { PageData } from '../$types';
 	import syncMovements from '../_logics/syncMovements';
+	import { currentMovement } from '../_stores/currentMovement';
 
 	export let data: PageData;
 
 	let name: string;
 	let reps: number;
 	let weight: number;
+
+	onMount(() => {
+		const unsubscribe = currentMovement.subscribe((movement) => {
+			console.log({ movement });
+			if (!movement) return;
+			name = movement.name;
+			reps = movement.reps;
+			weight = movement.weight;
+		});
+
+		return () => {
+			unsubscribe();
+		};
+	});
 
 	function handleSubmit() {
 		const newMovement: IMovementTransaction = {
@@ -69,6 +85,7 @@
 				class="input-bordered input col-span-12 w-full"
 				placeholder="Weight (kg)"
 				min={1}
+				step="0.1"
 				required
 				bind:value={weight}
 			/>

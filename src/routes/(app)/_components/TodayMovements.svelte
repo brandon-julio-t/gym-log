@@ -4,6 +4,7 @@
 	import 'crypto';
 	import type { PageData } from '../$types';
 	import syncMovements from '../_logics/syncMovements';
+	import { currentMovement } from '../_stores/currentMovement';
 
 	export let data: PageData;
 
@@ -13,6 +14,13 @@
 		syncMovements(data.session, newMovements);
 		invalidateAll();
 		alert('Movement removed!');
+	}
+
+	function handleCopy(movement: IMovementTransaction) {
+		currentMovement.update((m) => {
+			if (m) return { ...m, ...movement };
+			return movement;
+		});
 	}
 </script>
 
@@ -44,6 +52,9 @@
 										<td>
 											<button on:click={() => handleDelete(movement)} class="btn-error btn">
 												Delete
+											</button>
+											<button on:click={() => handleCopy(movement)} class="btn-outline btn-ghost btn">
+												Copy
 											</button>
 										</td>
 									</tr>
