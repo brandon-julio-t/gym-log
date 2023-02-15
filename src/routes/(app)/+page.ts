@@ -1,8 +1,8 @@
 import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
 import { getSupabase } from '@supabase/auth-helpers-sveltekit';
 import type { PageLoad } from './$types';
-import getMovementsFromLocalStorage from './logics/getMovementsFromLocalStorage';
-import getMovementsFromSupabase from './logics/getMovementsFromSupabase';
+import getMovementsFromLocalStorage from './_logics/getMovementsFromLocalStorage';
+import getMovementsFromSupabase from './_logics/getMovementsFromSupabase';
 
 export const load = (async (event) => {
 	const { session, supabaseClient } = await getSupabase(event);

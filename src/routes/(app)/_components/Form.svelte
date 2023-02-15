@@ -3,7 +3,7 @@
 	import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
 	import 'crypto';
 	import type { PageData } from '../$types';
-	import syncMovements from '../logics/syncMovements';
+	import syncMovements from '../_logics/syncMovements';
 
 	export let data: PageData;
 

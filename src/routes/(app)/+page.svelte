@@ -1,8 +1,8 @@
 <script lang="ts">
 	import 'crypto';
 	import type { PageData } from './$types';
-	import Form from './components/Form.svelte';
-	import TodayMovements from './components/TodayMovements.svelte';
+	import Form from './_components/Form.svelte';
+	import TodayMovements from './_components/TodayMovements.svelte';
 
 	export let data: PageData;
 </script>
