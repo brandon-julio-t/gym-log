@@ -17,6 +17,4 @@
 	});
 </script>
 
-<main class="container mx-auto">
-	<slot />
-</main>
+<slot />

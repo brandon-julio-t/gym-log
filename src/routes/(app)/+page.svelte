@@ -75,8 +75,8 @@
 
 <div class="my-8 grid grid-cols-1 gap-4">
 	<form on:submit|preventDefault={handleSubmit} class="card bg-base-100 shadow-xl">
-		<div class="card-body grid grid-cols-1 gap-4 md:grid-cols-12">
-			<section class="flex-col space-y-2 md:col-span-6">
+		<div class="card-body grid grid-cols-1 gap-4 lg:grid-cols-12">
+			<section class="flex-col space-y-2 lg:col-span-6">
 				<label for="name">Movement name</label>
 				<input
 					type="text"
@@ -89,7 +89,7 @@
 				/>
 			</section>
 
-			<section class="flex-col space-y-2 md:col-span-2">
+			<section class="flex-col space-y-2 lg:col-span-2">
 				<label for="name">Reps</label>
 				<input
 					type="number"
@@ -102,7 +102,7 @@
 				/>
 			</section>
 
-			<section class="flex-col space-y-2 md:col-span-2">
+			<section class="flex-col space-y-2 lg:col-span-2">
 				<label for="name">Weight (Kg)</label>
 				<input
 					type="number"
@@ -115,7 +115,7 @@
 				/>
 			</section>
 
-			<section class="flex items-end md:col-span-2">
+			<section class="flex items-end lg:col-span-2">
 				<button class="btn-primary btn col-span-12 gap-2">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
