@@ -24,7 +24,7 @@
 			throw error;
 		}
 
-		throw redirect(303, '/login');
+		window.location.reload();
 	}
 </script>
 
@@ -37,12 +37,12 @@
 			<li class="btn-ghost btn"><a href="#">History</a></li> -->
 		</ul>
 
-		<div>
-			<button on:click={handleLogout} class="btn-ghost btn-block btn" class:hidden={!data.session}>
+		<div class="flex justify-end">
+			<button on:click={handleLogout} class="btn-ghost btn" class:hidden={!data.session}>
 				Sign Out
 			</button>
 
-			<a href="/login" class="btn-ghost btn-block btn" class:hidden={data.session}>Sign In</a>
+			<a href="/login" class="btn-ghost btn" class:hidden={data.session}>Sign In</a>
 		</div>
 	</section>
 </nav>
