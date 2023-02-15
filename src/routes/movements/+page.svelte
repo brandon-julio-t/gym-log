@@ -1,17 +1,26 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
+	let category: string;
+	let loading: boolean;
+
 	function getMovementsByCategory(category: string): string[] {
 		return data.movements.get(category) ?? [];
+	}
+
+	function setCategory(c: string) {
+		category = c;
 	}
 </script>
 
 <h2 class="my-8 text-2xl font-medium">Manage Movements</h2>
 
 <section class="flex justify-end">
-	<label for="new-movement" class="btn-primary btn gap-2">
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<label on:click={() => setCategory('')} for="new-movement" class="btn-primary btn gap-2">
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			fill="none"
@@ -34,7 +43,17 @@
 
 			<h3 class="text-lg font-bold">New Movement</h3>
 
-			<form method="POST" class="flex-col space-y-4 py-4">
+			<form
+				method="POST"
+				class="flex-col space-y-4 py-4"
+				use:enhance={() => {
+					loading = true;
+					return async ({ update }) => {
+						update();
+						loading = false;
+					};
+				}}
+			>
 				<section class="flex-col space-y-4">
 					<label for="movement-category">Movement Category</label>
 					<input
@@ -43,6 +62,8 @@
 						id="movement-category"
 						class="input-bordered input w-full"
 						list="movement-categories"
+						bind:value={category}
+						required
 					/>
 					<datalist id="movement-categories">
 						{#each data.categories as category}
@@ -58,11 +79,12 @@
 						name="movement-name"
 						id="movement-name"
 						class="input-bordered input w-full"
+						required
 					/>
 				</section>
 
 				<section class="flex justify-end">
-					<button class="btn-primary btn">Submit</button>
+					<button class="btn-primary btn" class:loading disabled={loading}>Submit</button>
 				</section>
 			</form>
 		</label>
@@ -84,7 +106,12 @@
 				</ul>
 
 				<div class="card-actions justify-end">
-					<button class="btn-primary btn gap-2">
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<label
+						on:click={() => setCategory(category)}
+						for="new-movement"
+						class="btn-primary btn gap-2"
+					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"
@@ -96,7 +123,7 @@
 							<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
 						</svg>
 						Add
-					</button>
+					</label>
 				</div>
 			</div>
 		</div>
