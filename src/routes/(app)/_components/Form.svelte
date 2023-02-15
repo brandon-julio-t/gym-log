@@ -93,7 +93,6 @@
 				disabled={isEdit}
 			/>
 			<datalist id="all-movements">
-				<option value="cake" />
 				{#each data.groupedMovementKeys as key}
 					<option value={key} />
 				{/each}
