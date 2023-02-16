@@ -17,7 +17,8 @@ export default function groupMovementsByBestMovement(
 
 		const [bestMovement] = movements
 			.filter((m) => m.weight === bestWeight)
-			.filter((m) => m.reps === bestReps);
+			.filter((m) => m.reps === bestReps)
+			.reverse();
 
 		bestMovements.set(key, bestMovement);
 	});

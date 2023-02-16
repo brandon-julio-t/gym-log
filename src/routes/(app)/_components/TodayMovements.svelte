@@ -26,7 +26,7 @@
 
 	function handleDelete(movement: IMovementTransaction) {
 		if (!confirm('Are you sure to delete?')) return;
-		const newMovements = data.allMovements.filter((m) => m.id !== movement.id);
+		const newMovements = data.movementsInDateRange.filter((m) => m.id !== movement.id);
 		syncMovements(data.session, newMovements);
 		invalidateAll();
 		alert('Movement removed!');

@@ -46,21 +46,21 @@
 			weight,
 			created_at: new Date().toISOString()
 		};
-		const newMovements = [...data.allMovements, newMovement];
+		const newMovements = [...data.movementsInDateRange, newMovement];
 		syncMovements(data.session, newMovements);
 		invalidateAll();
 		alert('Movement added!');
 	}
 
 	function handleUpdateMovement() {
-		const [movementToUpdate] = data.allMovements.filter((m) => m.id === movementIdToUpdate);
+		const [movementToUpdate] = data.movementsInDateRange.filter((m) => m.id === movementIdToUpdate);
 
 		if (!movementToUpdate) {
 			console.log({ movementIdToUpdate });
 			return alert('Movement does not exist.');
 		}
 
-		const newMovements = data.allMovements.map((m) =>
+		const newMovements = data.movementsInDateRange.map((m) =>
 			m.id === movementIdToUpdate ? movementToUpdate : m
 		);
 

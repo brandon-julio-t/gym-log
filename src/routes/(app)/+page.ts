@@ -6,21 +6,25 @@ import type { PageLoad } from './$types';
 
 export const load = (async (event) => {
 	const { session, supabaseClient } = await getSupabase(event);
+	
+	const beginningOfTime = new Date(0);
 	const now = new Date();
 
-	const allMovements = await getMovementsForCurrentUserInDateRange(
+	const allMovements = getMovementsForCurrentUserInDateRange(supabaseClient, session, beginningOfTime, now);
+	const movementsInDateRange = await getMovementsForCurrentUserInDateRange(
 		supabaseClient,
 		session,
 		now,
 		now
 	);
 
-	const [groupedMovements, groupedMovementKeys] = groupMovementsByName(allMovements);
+	const [groupedMovements, groupedMovementKeys] = groupMovementsByName(movementsInDateRange);
 
-	const bestMovements = groupMovementsByBestMovement(groupedMovements, groupedMovementKeys);
+	const [groupedAllMovements, groupedAllMovementKeys] = groupMovementsByName(await allMovements);
+	const bestMovements = groupMovementsByBestMovement(groupedAllMovements, groupedAllMovementKeys);
 
 	return {
-		allMovements,
+		movementsInDateRange,
 		groupedMovements,
 		groupedMovementKeys,
 		bestMovements
