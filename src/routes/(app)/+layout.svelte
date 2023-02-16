@@ -1,21 +1,14 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import supabase from '$lib/supabaseClient';
-	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	let alias = 'Anonymous';
+	$: isAuth = !!data.session;
+	$: alias = data.session?.user.user_metadata.full_name ?? data.session?.user.email ?? 'Anonymous';
+
 	let showNavbar = false;
-	let now = new Date();
-
-	onMount(() => {
-		const { session } = data;
-
-		if (session) {
-			alias = session.user.user_metadata.full_name ?? session.user.email ?? 'Anonymous';
-		}
-	});
 
 	async function handleLogout() {
 		const { error } = await supabase.auth.signOut();
@@ -26,16 +19,6 @@
 		}
 
 		window.location.reload();
-	}
-
-	function fmtDate(date: Date) {
-		return date.toISOString().slice(0, 'yyyy-mm-dd'.length);
-	}
-
-	function oneMonthAgoFrom(date: Date) {
-		const clone = new Date(date);
-		clone.setMonth(clone.getMonth() - 1);
-		return clone;
 	}
 </script>
 
@@ -69,8 +52,27 @@
 			class="flex flex-col justify-center xl:block xl:flex-row xl:justify-start"
 			class:hidden={!showNavbar}
 		>
-			<a href="/" class="btn-ghost btn">Home</a>
-			<a href="/history" class="btn-ghost btn">History</a>
+			<a href="/" class="btn-ghost btn" class:btn-active={$page.route.id === '/(app)'}>
+				Home
+			</a>
+
+			<a
+				href="/history"
+				class="btn-ghost btn"
+				class:btn-active={$page.route.id === '/(app)/history'}
+			>
+				History
+			</a>
+
+			{#if isAuth}
+				<a
+					href="/leaderboard"
+					class="btn-ghost btn"
+					class:btn-active={$page.route.id === '/(app)/leaderboard'}
+				>
+					Leaderboard
+				</a>
+			{/if}
 		</div>
 
 		<div class="flex justify-center xl:block xl:justify-end" class:hidden={!showNavbar}>
