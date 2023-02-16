@@ -17,9 +17,11 @@
 				{key}
 			</h3>
 
-			<section class="text-sm font-medium">
-				Personal Record: {bestMovements.get(key)?.reps} times @ {bestMovements.get(key)?.weight} kg
-			</section>
+			{#if bestMovements.has(key)}
+				<section class="text-sm font-medium">
+					Personal Record: {bestMovements.get(key)?.reps} times @ {bestMovements.get(key)?.weight} kg
+				</section>
+			{/if}
 
 			<section class="overflow-x-auto">
 				<table class="table-zebra table w-full">

@@ -1,4 +1,5 @@
 import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
+import groupMovementsByBestMovement from '$lib/logics/movements/groupMovementsByBestMovement';
 import groupMovementsByName from '$lib/logics/movements/groupMovementsByName';
 import { getSupabase } from '@supabase/auth-helpers-sveltekit';
 import type { PageLoad } from './$types';
@@ -23,10 +24,12 @@ export const load = (async (event) => {
 	}
 
 	const [groupedMovements, groupedMovementKeys] = groupMovementsByName(allMovements);
+	const bestMovements = groupMovementsByBestMovement(groupedMovements, groupedMovementKeys);
 
 	return {
 		allMovements,
 		groupedMovements,
-		groupedMovementKeys
+		groupedMovementKeys,
+		bestMovements
 	};
 }) satisfies PageLoad;
