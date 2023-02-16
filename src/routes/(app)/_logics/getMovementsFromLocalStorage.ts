@@ -1,4 +1,4 @@
-import { getMovementsFromLocalStorageInDateRange } from '$lib/movementsService';
+import getMovementsFromLocalStorageInDateRange from '$lib/services/movements/getMovementsFromLocalStorageInDateRange';
 
 export default function getMovementsFromLocalStorage() {
 	const now = new Date();

@@ -1,4 +1,4 @@
-import { getMovementsFromSupabaseInDateRange } from '$lib/movementsService';
+import getMovementsFromSupabaseInDateRange from '$lib/services/movements/getMovementsFromSupabaseInDateRange';
 import type { TypedSupabaseClient } from '@supabase/auth-helpers-sveltekit';
 import type { Session } from '@supabase/supabase-js';
 

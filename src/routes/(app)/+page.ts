@@ -1,5 +1,5 @@
 import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
-import { groupMovementsByName } from '$lib/movementsService';
+import groupMovementsByName from '$lib/logics/movements/groupMovementsByName';
 import { getSupabase } from '@supabase/auth-helpers-sveltekit';
 import type { PageLoad } from './$types';
 import getMovementsFromLocalStorage from './_logics/getMovementsFromLocalStorage';

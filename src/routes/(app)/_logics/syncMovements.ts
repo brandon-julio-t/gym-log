@@ -1,9 +1,7 @@
 import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
-import {
-	deleteMovementsFromSupabaseInOneDay,
-	saveMovementsIntoLocalStorage,
-	saveMovementsIntoSupabase
-} from '$lib/movementsService';
+import deleteMovementsFromSupabaseInOneDay from '$lib/services/movements/deleteMovementsFromSupabaseInOneDay';
+import saveMovementsIntoLocalStorage from '$lib/services/movements/saveMovementsIntoLocalStorage';
+import saveMovementsIntoSupabase from '$lib/services/movements/saveMovementsIntoSupabase';
 import supabase from '$lib/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
 
