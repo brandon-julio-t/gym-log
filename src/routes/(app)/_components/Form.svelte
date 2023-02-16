@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 	import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
+	import syncMovements from '$lib/services/movements/syncMovements';
 	import 'crypto';
 	import { onMount } from 'svelte';
 	import type { PageData } from '../$types';
-	import syncMovements from '../_logics/syncMovements';
 	import { movementForm } from '../_stores/movementForm';
 
 	export let data: PageData;

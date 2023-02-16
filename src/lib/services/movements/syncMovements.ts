@@ -4,12 +4,13 @@ import saveMovementsIntoLocalStorage from '$lib/services/movements/saveMovements
 import saveMovementsIntoSupabase from '$lib/services/movements/saveMovementsIntoSupabase';
 import supabase from '$lib/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
+import getMovementsFromSupabaseInDateRange from './getMovementsFromSupabaseInDateRange';
 
 export default async function syncMovements(
 	session: Session | null,
 	movements: IMovementTransaction[]
 ) {
-	const newMovements = movements.map((m) => ({ ...m, id: crypto.randomUUID() }));
+	let newMovements = movements.map((m) => ({ ...m, id: crypto.randomUUID() }));
 
 	if (session) {
 		const { user } = session;
@@ -32,6 +33,14 @@ export default async function syncMovements(
 				return alert('An error occurred when sync data (2).');
 			}
 		}
+
+		const { data, error } = await getMovementsFromSupabaseInDateRange(supabase, user.id, now, now);
+		if (error) {
+			console.error(error);
+			throw error;
+		}
+
+		newMovements = data;
 	}
 
 	saveMovementsIntoLocalStorage(newMovements);

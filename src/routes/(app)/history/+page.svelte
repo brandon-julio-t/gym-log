@@ -3,8 +3,6 @@
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-
-	console.log({ data });
 </script>
 
 <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">

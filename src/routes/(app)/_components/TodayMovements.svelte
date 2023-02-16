@@ -2,9 +2,8 @@
 	import { invalidateAll } from '$app/navigation';
 	import GroupedMovementsView from '$lib/components/GroupedMovementsView.svelte';
 	import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
-	import 'crypto';
+	import syncMovements from '$lib/services/movements/syncMovements';
 	import type { PageData } from '../$types';
-	import syncMovements from '../_logics/syncMovements';
 	import { movementForm } from '../_stores/movementForm';
 
 	export let data: PageData;
