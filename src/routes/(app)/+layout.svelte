@@ -5,14 +5,14 @@
 
 	export let data: PageData;
 
-	let email: string = 'Anonymous';
+	let alias: string = 'Anonymous';
 	let showNavbar = false;
 
 	onMount(() => {
 		const { session } = data;
 
 		if (session) {
-			email = session.user.email ?? 'Anonymous';
+			alias = session.user.user_metadata.full_name ?? session.user.email ?? 'Anonymous';
 		}
 	});
 
@@ -28,7 +28,7 @@
 	}
 </script>
 
-<nav class="container mx-auto mb-4 border-b-2 border-b-base-300 px-2 pb-4">
+<nav class="container mx-auto mb-4 border-b-2 border-b-base-300 px-2 xl:pb-4">
 	<section class="my-4 flex items-center justify-between">
 		<button
 			class="btn-ghost btn-square btn visible xl:invisible"
@@ -50,7 +50,7 @@
 			</svg>
 		</button>
 
-		<span>Hello, {email}</span>
+		<span>Hello, {alias}</span>
 	</section>
 
 	<section class="flex flex-col flex-wrap justify-between overflow-hidden xl:h-auto xl:flex-row">
