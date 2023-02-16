@@ -1,4 +1,5 @@
 import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
+import { groupMovementsByName } from '$lib/movementsService';
 import { getSupabase } from '@supabase/auth-helpers-sveltekit';
 import type { PageLoad } from './$types';
 import getMovementsFromLocalStorage from './_logics/getMovementsFromLocalStorage';
@@ -21,21 +22,11 @@ export const load = (async (event) => {
 		allMovements = [...allMovements, ...processedMovements];
 	}
 
-	const groupedMovements = new Map<string, IMovementTransaction[]>();
-
-	allMovements.forEach((movement) => {
-		const normalizedKey = movement.name.trim().toLowerCase();
-
-		if (groupedMovements.has(normalizedKey)) {
-			groupedMovements.get(normalizedKey)?.push(movement);
-		} else {
-			groupedMovements.set(normalizedKey, [movement]);
-		}
-	});
+	const [groupedMovements, groupedMovementKeys] = groupMovementsByName(allMovements);
 
 	return {
 		allMovements,
 		groupedMovements,
-		groupedMovementKeys: [...groupedMovements.keys()]
+		groupedMovementKeys
 	};
 }) satisfies PageLoad;

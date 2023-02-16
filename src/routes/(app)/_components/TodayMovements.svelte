@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
+	import GroupedMovementsView from '$lib/components/GroupedMovementsView.svelte';
 	import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
 	import 'crypto';
 	import type { PageData } from '../$types';
@@ -37,50 +38,12 @@
 	<div class="card-body flex flex-col space-y-4">
 		<h2 class="card-title">Today's Movements</h2>
 
-		{#each data.groupedMovementKeys as key}
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h3 class="card-title mb-4 capitalize">{key}</h3>
-
-					<div class="overflow-x-auto">
-						<table class="table-zebra table w-full">
-							<thead>
-								<tr>
-									<th>Set #</th>
-									<th>Reps</th>
-									<th>Weight</th>
-									<th>Action</th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each data.groupedMovements.get(key) ?? [] as movement, i}
-									<tr>
-										<th>{i + 1}</th>
-										<td>{movement.reps} times</td>
-										<td>{movement.weight} kg</td>
-										<td>
-											<button on:click={() => handleEdit(movement)} class="btn-secondary btn">
-												Edit
-											</button>
-											<button
-												on:click={() => handleCopy(movement)}
-												class="btn-outline btn-ghost btn"
-											>
-												Copy
-											</button>
-											<button on:click={() => handleDelete(movement)} class="btn-error btn">
-												Delete
-											</button>
-										</td>
-									</tr>
-								{/each}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		{:else}
-			<div>No movements yet.</div>
-		{/each}
+		<GroupedMovementsView
+			groupedMovementKeys={data.groupedMovementKeys}
+			groupedMovements={data.groupedMovements}
+			on:edit={(e) => handleEdit(e.detail)}
+			on:copy={(e) => handleCopy(e.detail)}
+			on:delete={(e) => handleDelete(e.detail)}
+		/>
 	</div>
 </section>
