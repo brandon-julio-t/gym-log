@@ -70,13 +70,7 @@
 			class:hidden={!showNavbar}
 		>
 			<a href="/" class="btn-ghost btn">Home</a>
-			<a
-				href={`/history?${new URLSearchParams({
-					start: fmtDate(oneMonthAgoFrom(now)),
-					end: fmtDate(now)
-				})}`}
-				class="btn-ghost btn">History</a
-			>
+			<a href="/history" class="btn-ghost btn">History</a>
 		</div>
 
 		<div class="flex justify-center xl:block xl:justify-end" class:hidden={!showNavbar}>

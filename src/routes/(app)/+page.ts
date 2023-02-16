@@ -6,11 +6,16 @@ import type { PageLoad } from './$types';
 
 export const load = (async (event) => {
 	const { session, supabaseClient } = await getSupabase(event);
-	
+
 	const beginningOfTime = new Date(0);
 	const now = new Date();
 
-	const allMovements = getMovementsForCurrentUserInDateRange(supabaseClient, session, beginningOfTime, now);
+	const allMovementsPromise = getMovementsForCurrentUserInDateRange(
+		supabaseClient,
+		session,
+		beginningOfTime,
+		now
+	);
 	const movementsInDateRange = await getMovementsForCurrentUserInDateRange(
 		supabaseClient,
 		session,
@@ -20,7 +25,8 @@ export const load = (async (event) => {
 
 	const [groupedMovements, groupedMovementKeys] = groupMovementsByName(movementsInDateRange);
 
-	const [groupedAllMovements, groupedAllMovementKeys] = groupMovementsByName(await allMovements);
+	const allMovements = await allMovementsPromise;
+	const [groupedAllMovements, groupedAllMovementKeys] = groupMovementsByName(allMovements);
 	const bestMovements = groupMovementsByBestMovement(groupedAllMovements, groupedAllMovementKeys);
 
 	return {
