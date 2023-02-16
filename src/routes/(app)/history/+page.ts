@@ -1,5 +1,3 @@
-import groupMovementsByBestMovement from '$lib/logics/movements/groupMovementsByBestMovement';
-import groupMovementsByName from '$lib/logics/movements/groupMovementsByName';
 import getMovementsForCurrentUserInDateRange from '$lib/services/movements/getMovementsForCurrentUserInDateRange';
 import { getSupabase } from '@supabase/auth-helpers-sveltekit';
 import type { PageLoad } from './$types';
@@ -17,9 +15,6 @@ export const load = (async (event) => {
 		beginningOfTime,
 		new Date()
 	);
-	
-	const [groupedAllMovements, groupedAllMovementKeys] = groupMovementsByName(allMovements);
-	const bestMovements = groupMovementsByBestMovement(groupedAllMovements, groupedAllMovementKeys);
 
 	const allDates = [
 		...new Set(
@@ -41,13 +36,8 @@ export const load = (async (event) => {
 		filterDate
 	);
 
-	const [groupedMovements, groupedMovementKeys] = groupMovementsByName(movementsInDateRange);
-
 	return {
 		movementsInDateRange,
-		groupedMovements,
-		groupedMovementKeys,
-		bestMovements,
 		allDates,
 		currentDate
 	};

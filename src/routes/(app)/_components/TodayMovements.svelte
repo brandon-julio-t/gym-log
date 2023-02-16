@@ -38,9 +38,7 @@
 		<h2 class="card-title">Today's Movements</h2>
 
 		<GroupedMovementsView
-			groupedMovementKeys={data.groupedMovementKeys}
-			groupedMovements={data.groupedMovements}
-			bestMovements={data.bestMovements}
+			movements={data.movementsInDateRange}
 			on:edit={(e) => handleEdit(e.detail)}
 			on:copy={(e) => handleCopy(e.detail)}
 			on:delete={(e) => handleDelete(e.detail)}

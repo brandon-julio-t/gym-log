@@ -9,6 +9,8 @@
 
 	export let data: PageData;
 
+	$: movementNames = [...new Set(data.allMovements.map((m) => m.name))];
+
 	let movementIdToUpdate = '';
 	let name = '';
 	let reps = 0;
@@ -93,8 +95,8 @@
 				disabled={isEdit}
 			/>
 			<datalist id="all-movements">
-				{#each data.groupedMovementKeys as key}
-					<option value={key} />
+				{#each movementNames as name}
+					<option value={name} />
 				{/each}
 			</datalist>
 		</section>

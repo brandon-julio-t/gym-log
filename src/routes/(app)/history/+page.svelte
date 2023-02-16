@@ -27,10 +27,5 @@
 </section>
 
 <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-	<GroupedMovementsView
-		groupedMovementKeys={data.groupedMovementKeys}
-		groupedMovements={data.groupedMovements}
-		bestMovements={data.bestMovements}
-		isViewOnly
-	/>
+	<GroupedMovementsView movements={data.movementsInDateRange} isViewOnly />
 </div>

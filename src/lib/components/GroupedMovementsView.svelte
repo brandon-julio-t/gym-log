@@ -1,25 +1,69 @@
 <script lang="ts">
 	import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 
-	export let groupedMovements: Map<string, IMovementTransaction[]>;
-	export let groupedMovementKeys: string[];
-	export let bestMovements: Map<string, IMovementTransaction>;
+	export let movements: IMovementTransaction[];
 	export let isViewOnly: boolean = false;
+
+	$: movementNames = [...new Set(movements.map((m) => m.name))];
+
+	let loading = true;
+	let bestMovements = new Map<string, IMovementTransaction>();
+	let errorMessage = '';
+
+	onMount(async () => {
+		try {
+			const movements = await Promise.all<IMovementTransaction>(
+				movementNames.map(async (name) => {
+					const url = `/api/movements/${encodeURIComponent(name)}/best`;
+					return await fetch(url).then((r) => {
+						if (r.ok) return r.json();
+						throw r;
+					});
+				})
+			);
+
+			movements.forEach((m) => bestMovements.set(m.name, m));
+
+			bestMovements = bestMovements;
+		} catch (error) {
+			if (error instanceof Response) {
+				const err = await error.json();
+				console.error(err.message);
+				errorMessage = err.message;
+			} else {
+				console.error(error);
+			}
+		}
+
+		loading = false;
+	});
 
 	const dispatch = createEventDispatcher();
 </script>
 
-{#each groupedMovementKeys as key}
+{#each movementNames as movementName}
 	<div class="card border border-base-200 bg-base-100 shadow-md">
 		<div class="card-body flex flex-col space-y-2">
 			<h3 class="card-title capitalize">
-				{key}
+				{movementName}
 			</h3>
 
-			{#if bestMovements.has(key)}
+			{#if errorMessage}
+				<div class="text-sm opacity-50">
+					{errorMessage}
+				</div>
+			{:else if loading}
 				<section class="text-sm font-medium">
-					Personal Record: {bestMovements.get(key)?.reps} times @ {bestMovements.get(key)?.weight} kg
+					Personal Record:
+					<span class="animate-pulse rounded bg-base-300 text-transparent">00</span> times @
+					<span class="animate-pulse rounded bg-base-300 text-transparent">00</span> kg
+				</section>
+			{:else if bestMovements.has(movementName)}
+				<section class="text-sm font-medium">
+					Personal Record:
+					{bestMovements.get(movementName)?.reps} times @
+					{bestMovements.get(movementName)?.weight} kg
 				</section>
 			{/if}
 
@@ -36,11 +80,11 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each groupedMovements.get(key) ?? [] as movement, i}
+						{#each movements.filter((m) => m.name === movementName) as movement, i}
 							<tr>
 								<th>
 									<span>{i + 1}</span>
-									{#if movement.id === bestMovements.get(key)?.id}
+									{#if movement.id === bestMovements.get(movementName)?.id}
 										<span class="badge-primary badge">Best</span>
 									{/if}
 								</th>
