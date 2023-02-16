@@ -1,9 +1,7 @@
 import type IMovementTransaction from '$lib/contracts/IMovementTransaction';
-import {
-	getMovementsFromLocalStorageInDateRange,
-	getMovementsFromSupabaseInDateRange,
-	groupMovementsByName
-} from '$lib/movementsService';
+import groupMovementsByName from '$lib/logics/movements/groupMovementsByName';
+import getMovementsFromLocalStorageInDateRange from '$lib/services/movements/getMovementsFromLocalStorageInDateRange';
+import getMovementsFromSupabaseInDateRange from '$lib/services/movements/getMovementsFromSupabaseInDateRange';
 import { getSupabase } from '@supabase/auth-helpers-sveltekit';
 import type { PageLoad } from './$types';
 
@@ -37,9 +35,27 @@ export const load = (async (event) => {
 
 	const [groupedMovements, groupedMovementKeys] = groupMovementsByName(allMovements);
 
+	const bestMovements = new Map<string, IMovementTransaction>();
+	groupedMovementKeys.forEach((key) => {
+		const movements = groupedMovements.get(key);
+		if (!movements) return;
+
+		const bestWeight = Math.max(...movements.map((m) => m.weight));
+		const bestReps = Math.max(
+			...movements.filter((m) => m.weight === bestWeight).map((m) => m.reps)
+		);
+
+		const [bestMovement] = movements
+			.filter((m) => m.weight === bestWeight)
+			.filter((m) => m.reps === bestReps);
+
+		bestMovements.set(key, bestMovement);
+	});
+
 	return {
 		allMovements,
 		groupedMovements,
-		groupedMovementKeys
+		groupedMovementKeys,
+		bestMovements
 	};
 }) satisfies PageLoad;

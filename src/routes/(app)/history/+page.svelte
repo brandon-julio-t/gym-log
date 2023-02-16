@@ -7,10 +7,11 @@
 	console.log({ data });
 </script>
 
-<div class="flex flex-col space-y-4">
+<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
 	<GroupedMovementsView
 		groupedMovementKeys={data.groupedMovementKeys}
 		groupedMovements={data.groupedMovements}
+		bestMovements={data.bestMovements}
 		isViewOnly
 	/>
 </div>

@@ -4,6 +4,7 @@
 
 	export let groupedMovements: Map<string, IMovementTransaction[]>;
 	export let groupedMovementKeys: string[];
+	export let bestMovements: Map<string, IMovementTransaction>;
 	export let isViewOnly: boolean = false;
 
 	const dispatch = createEventDispatcher();
@@ -11,17 +12,22 @@
 
 {#each groupedMovementKeys as key}
 	<div class="card border border-base-200 bg-base-100 shadow-md">
-		<div class="card-body">
-			<h3 class="card-title mb-4 capitalize">{key}</h3>
+		<div class="card-body flex flex-col space-y-2">
+			<h3 class="card-title capitalize">
+				{key}
+			</h3>
 
-			<div class="overflow-x-auto">
-				<table class="table w-full">
+			<section class="text-sm font-medium">
+				Personal Record: {bestMovements.get(key)?.reps} times @ {bestMovements.get(key)?.weight} kg
+			</section>
+
+			<section class="overflow-x-auto">
+				<table class="table-zebra table w-full">
 					<thead>
 						<tr>
 							<th>Set #</th>
 							<th>Reps</th>
 							<th>Weight</th>
-							<th>Muscle Value</th>
 							{#if !isViewOnly}
 								<th>Action</th>
 							{/if}
@@ -30,10 +36,14 @@
 					<tbody>
 						{#each groupedMovements.get(key) ?? [] as movement, i}
 							<tr>
-								<th>{i + 1}</th>
+								<th>
+									<span>{i + 1}</span>
+									{#if movement.id === bestMovements.get(key)?.id}
+										<span class="badge-primary badge">Best</span>
+									{/if}
+								</th>
 								<td>{movement.reps} times</td>
 								<td>{movement.weight} kg</td>
-								<td>{movement.reps * movement.weight} MV</td>
 								{#if !isViewOnly}
 									<td>
 										<button on:click={() => dispatch('edit', movement)} class="btn-secondary btn">
@@ -53,18 +63,8 @@
 							</tr>
 						{/each}
 					</tbody>
-					<tfoot>
-						<tr>
-							<th colspan="3" class="font-bold">Total</th>
-							<td>
-								{(groupedMovements.get(key) ?? [])
-									.map((m) => m.reps * m.weight)
-									.reduce((a, b) => a + b)} MV
-							</td>
-						</tr>
-					</tfoot>
 				</table>
-			</div>
+			</section>
 		</div>
 	</div>
 {:else}
