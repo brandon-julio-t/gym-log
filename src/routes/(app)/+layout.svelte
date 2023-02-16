@@ -5,8 +5,9 @@
 
 	export let data: PageData;
 
-	let alias: string = 'Anonymous';
+	let alias = 'Anonymous';
 	let showNavbar = false;
+	let now = new Date();
 
 	onMount(() => {
 		const { session } = data;
@@ -25,6 +26,16 @@
 		}
 
 		window.location.reload();
+	}
+
+	function fmtDate(date: Date) {
+		return date.toISOString().slice(0, 'yyyy-mm-dd'.length);
+	}
+
+	function oneMonthAgoFrom(date: Date) {
+		const clone = new Date(date);
+		clone.setMonth(clone.getMonth() - 1);
+		return clone;
 	}
 </script>
 
@@ -59,7 +70,13 @@
 			class:hidden={!showNavbar}
 		>
 			<a href="/" class="btn-ghost btn">Home</a>
-			<a href="/history" class="btn-ghost btn">History</a>
+			<a
+				href={`/history?${new URLSearchParams({
+					start: fmtDate(oneMonthAgoFrom(now)),
+					end: fmtDate(now)
+				})}`}
+				class="btn-ghost btn">History</a
+			>
 		</div>
 
 		<div class="flex justify-center xl:block xl:justify-end" class:hidden={!showNavbar}>
