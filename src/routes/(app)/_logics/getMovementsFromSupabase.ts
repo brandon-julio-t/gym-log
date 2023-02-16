@@ -1,3 +1,4 @@
+import { getMovementsFromSupabaseInDateRange } from '$lib/movementsService';
 import type { TypedSupabaseClient } from '@supabase/auth-helpers-sveltekit';
 import type { Session } from '@supabase/supabase-js';
 
@@ -6,15 +7,13 @@ export default async function getMovementsFromSupabase(
 	supabaseClient: TypedSupabaseClient
 ) {
 	const now = new Date();
-	const nowStr = now.toISOString().slice(0, 'yyyy-mm-dd'.length);
 
-	const { data, error } = await supabaseClient
-		.from('movements')
-		.select()
-		.eq('user_id', session.user.id)
-		.gte('created_at', `${nowStr} 00:00:00`)
-		.lte('created_at', `${nowStr} 23:59:59`)
-		.order('created_at', { ascending: true });
+	const { data, error } = await getMovementsFromSupabaseInDateRange(
+		supabaseClient,
+		session.user.id,
+		now,
+		now
+	);
 
 	if (error) {
 		console.error(error);
