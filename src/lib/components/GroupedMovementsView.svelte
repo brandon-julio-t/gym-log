@@ -10,12 +10,12 @@
 </script>
 
 {#each groupedMovementKeys as key}
-	<div class="card bg-base-100 shadow-xl">
+	<div class="card border border-base-200 bg-base-100 shadow-md">
 		<div class="card-body">
 			<h3 class="card-title mb-4 capitalize">{key}</h3>
 
 			<div class="overflow-x-auto">
-				<table class="table-zebra table w-full">
+				<table class="table w-full">
 					<thead>
 						<tr>
 							<th>Set #</th>
@@ -53,6 +53,16 @@
 							</tr>
 						{/each}
 					</tbody>
+					<tfoot>
+						<tr>
+							<th colspan="3" class="font-bold">Total</th>
+							<td>
+								{(groupedMovements.get(key) ?? [])
+									.map((m) => m.reps * m.weight)
+									.reduce((a, b) => a + b)} MV
+							</td>
+						</tr>
+					</tfoot>
 				</table>
 			</div>
 		</div>
