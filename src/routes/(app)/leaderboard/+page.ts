@@ -26,8 +26,7 @@ export const load = (async (event) => {
 		const [profile] = profiles.filter((p) => p.id === movement.user_id);
 
 		if (profile?.full_name) {
-			const censored = profile.full_name.slice(0, 3) + '********';
-			movement.username = censored;
+			movement.username = profile.full_name;
 		} else {
 			movement.username = 'Anonymous';
 		}
