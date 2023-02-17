@@ -25,7 +25,6 @@ export const load = (async (event) => {
 
 		const localIds = programmes.map((p) => p.id);
 		const supabaseIds = supabaseProgrammes.map((p) => p.id);
-		console.log({ localIds, supabaseIds });
 		if (localIds.length !== supabaseIds.length) {
 			isDifferentFromSupabase = true;
 		} else {

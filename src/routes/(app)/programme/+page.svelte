@@ -56,7 +56,6 @@
 
 		{
 			const newLocal = programmes.map((p) => ({ ...p, user_id: session.user.id }));
-			console.log({ newLocal });
 			const { error } = await supabase.from('programmes').insert(newLocal);
 			if (error) {
 				console.error(error);
