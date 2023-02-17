@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { invalidate, invalidateAll } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
+	import supabase from '$lib/supabaseClient';
 	import type { PageData } from './$types';
 	import type { IProgramme } from './+page';
+	import Programme from './_components/Programme.svelte';
 
 	export let data: PageData;
 
-	let programmeToBeEdited: IProgramme | null = null;
+	let loading = false;
 
 	function handleNewProgramme() {
 		const newProgramme = {
@@ -21,41 +23,6 @@
 		invalidateAll();
 	}
 
-	function handleNewMovement(programme: IProgramme) {
-		programme.movements = [...programme.movements, 'New movement'];
-
-		const newProgrammes = data.programmes.map((p) => (p.id === programme.id ? programme : p));
-		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
-
-		invalidateAll();
-	}
-
-	function handleStartEdit(programme: IProgramme) {
-		programmeToBeEdited = { ...programme };
-	}
-
-	function handleDoneEdit() {
-		if (!programmeToBeEdited) return;
-		const newProgrammes = data.programmes.map((p) =>
-			p.id === programmeToBeEdited?.id ? programmeToBeEdited : p
-		);
-		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
-		programmeToBeEdited = null;
-		invalidateAll();
-	}
-
-	function handleCancelEdit() {
-		programmeToBeEdited = null;
-		invalidateAll();
-	}
-
-	function handleDelete(programme: IProgramme) {
-		if (!confirm(`Are you sure to delete programme ${programme.name}?`)) return;
-		const filtered = data.programmes.filter((p) => p.id !== programme.id);
-		localStorage.setItem('programmes', JSON.stringify(filtered));
-		invalidateAll();
-	}
-
 	function handleChangeProgrammeOrder(programme: IProgramme, delta: number) {
 		let newOrder = programme.order + delta;
 
@@ -66,178 +33,116 @@
 		}
 
 		const newProgrammes = data.programmes.map((p) => (p.id === programme.id ? programme : p));
-		console.log({ newProgrammes });
 		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
 		invalidateAll();
 	}
 
-	function handleChangeMovementOrder(programme: IProgramme, movement: string, delta: number) {
-		const currentIdx = programme.movements.indexOf(movement);
-
-		if (currentIdx === -1) {
-			alert('Invalid index');
-			console.log({ currentIdx });
+	async function syncToCloud() {
+		const { session } = data;
+		if (!session) {
+			alert('Unauthenticated.');
 			return;
 		}
 
-		for (let i = 0; i < programme.movements.length; i++) {
-			if (i === currentIdx) {
-				const neighbourIdx = i + delta;
-				const temp = programme.movements[i];
-				programme.movements[i] = programme.movements[neighbourIdx];
-				programme.movements[neighbourIdx] = temp;
-				break;
+		const programmes: IProgramme[] = JSON.parse(localStorage.getItem('programmes') ?? '[]');
+
+		{
+			const { error } = await supabase.from('programmes').delete().eq('user_id', session.user.id);
+			if (error) {
+				console.error(error);
+				return alert('An error occurred when sync to cloud (1).');
 			}
 		}
 
-		const newProgrammes = data.programmes.map((p) => (p.id === programme.id ? programme : p));
-		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
+		{
+			const newLocal = programmes.map((p) => ({ ...p, user_id: session.user.id }));
+			console.log({ newLocal });
+			const { error } = await supabase.from('programmes').insert(newLocal);
+			if (error) {
+				console.error(error);
+				return alert('An error occurred when sync to cloud (2).');
+			}
+		}
+
+		alert('Sync to cloud success!');
+		invalidateAll();
+	}
+
+	async function syncFromCloud() {
+		const { session } = data;
+		if (!session) {
+			alert('Unauthenticated.');
+			return;
+		}
+
+		const { data: cloudProgrammes, error } = await supabase
+			.from('programmes')
+			.select()
+			.eq('user_id', session.user.id)
+			.order('order', { ascending: true })
+			.order('name', { ascending: true })
+			.order('created_at', { ascending: true });
+
+		if (error) {
+			console.error(error);
+			return alert('An error occurred when sync from cloud.');
+		}
+
+		localStorage.setItem('programmes', JSON.stringify(cloudProgrammes ?? []));
 		invalidateAll();
 	}
 </script>
 
-<section>
+{#if data.isDifferentFromSupabase}
+	<section class="mb-4 flex flex-wrap justify-end space-x-2">
+		<button on:click={syncFromCloud} class="btn-primary btn gap-2" class:loading disabled={loading}>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor"
+				class="h-6 w-6"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M12 9.75v6.75m0 0l-3-3m3 3l3-3m-8.25 6a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
+				/>
+			</svg>
+			<span>Use cloud data</span>
+		</button>
+		<button on:click={syncToCloud} class="btn-primary btn gap-2" class:loading disabled={loading}>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor"
+				class="h-6 w-6"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
+				/>
+			</svg>
+			<span>Use local data</span>
+		</button>
+	</section>
+{/if}
+
+<section class="flex justify-end">
 	<button on:click={handleNewProgramme} class="btn-primary btn">New Programme</button>
 </section>
 
 <section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
 	{#each data.programmes as programme}
-		<section class="card shadow">
-			<div class="card-body">
-				{#if programmeToBeEdited?.id === programme.id}
-					<input
-						bind:value={programmeToBeEdited.name}
-						type="text"
-						placeholder="Programme name..."
-						class="input-bordered input w-full"
-					/>
-				{:else}
-					<h2 class="card-title flex justify-between">
-						<div>
-							<button
-								on:click={() => handleChangeProgrammeOrder(programme, -1)}
-								class="btn-outline btn-ghost btn"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke-width="1.5"
-									stroke="currentColor"
-									class="h-6 w-6"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										d="M15.75 19.5L8.25 12l7.5-7.5"
-									/>
-								</svg>
-							</button>
-						</div>
-						<div>{programme.name}</div>
-						<div>
-							<button
-								on:click={() => handleChangeProgrammeOrder(programme, +1)}
-								class="btn-outline btn-ghost btn"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke-width="1.5"
-									stroke="currentColor"
-									class="h-6 w-6"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										d="M8.25 4.5l7.5 7.5-7.5 7.5"
-									/>
-								</svg>
-							</button>
-						</div>
-					</h2>
-				{/if}
-
-				<section>
-					<h3 class="font-medium">Movements</h3>
-					<div class="flex flex-col divide-y">
-						{#each programme.movements as movement, i}
-							<div class="flex items-center justify-between space-x-4 py-4">
-								<div>
-									<span class="mr-2">{i + 1}.</span>
-									{#if programmeToBeEdited?.id === programme.id}
-										<input
-											bind:value={programmeToBeEdited.movements[i]}
-											type="text"
-											placeholder="Movement name..."
-											class="input-bordered input my-2"
-										/>
-									{:else}
-										{movement}
-									{/if}
-								</div>
-								<div class="flex space-x-2">
-									<button
-										on:click={() => handleChangeMovementOrder(programme, movement, -1)}
-										class="btn-outline btn-ghost btn-square btn"
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke-width="1.5"
-											stroke="currentColor"
-											class="h-6 w-6"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												d="M4.5 15.75l7.5-7.5 7.5 7.5"
-											/>
-										</svg>
-									</button>
-									<button
-										on:click={() => handleChangeMovementOrder(programme, movement, +1)}
-										class="btn-outline btn-ghost btn-square btn"
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke-width="1.5"
-											stroke="currentColor"
-											class="h-6 w-6"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-											/>
-										</svg>
-									</button>
-								</div>
-							</div>
-						{:else}
-							<div>No movement yet.</div>
-						{/each}
-					</div>
-				</section>
-
-				<section class="card-actions justify-end">
-					{#if programmeToBeEdited?.id === programme.id}
-						<button on:click={() => handleDoneEdit()} class="btn-primary btn">Done</button>
-						<button on:click={() => handleCancelEdit()} class="btn-error btn">Cancel</button>
-					{:else}
-						<button on:click={() => handleNewMovement(programme)} class="btn">New Movement</button>
-						<button on:click={() => handleStartEdit(programme)} class="btn-outline btn-ghost btn">
-							Edit
-						</button>
-						<button on:click={() => handleDelete(programme)} class="btn-error btn">Delete</button>
-					{/if}
-				</section>
-			</div>
-		</section>
+		<Programme
+			{programme}
+			{data}
+			on:reorder={(e) => handleChangeProgrammeOrder(e.detail.programme, e.detail.delta)}
+		/>
 	{:else}
 		<section class="card shadow">
 			<div class="card-body">
