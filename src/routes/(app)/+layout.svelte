@@ -24,10 +24,9 @@
 
 <nav class="container mx-auto mb-4 border-b-2 border-b-base-300 px-2 xl:pb-4">
 	<section class="my-4 flex items-center justify-between">
-		<button
-			class="btn-ghost btn-square btn visible xl:invisible"
-			on:click={() => (showNavbar = !showNavbar)}
-		>
+		<div class="text-right xl:w-full">Hello, {alias}</div>
+
+		<button class="btn-ghost btn-square btn xl:hidden" on:click={() => (showNavbar = !showNavbar)}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				fill="none"
@@ -43,8 +42,6 @@
 				/>
 			</svg>
 		</button>
-
-		<span>Hello, {alias}</span>
 	</section>
 
 	<section class="flex flex-col flex-wrap justify-between overflow-hidden xl:h-auto xl:flex-row">
@@ -52,9 +49,7 @@
 			class="flex flex-col justify-center xl:block xl:flex-row xl:justify-start"
 			class:hidden={!showNavbar}
 		>
-			<a href="/" class="btn-ghost btn" class:btn-active={$page.route.id === '/(app)'}>
-				Home
-			</a>
+			<a href="/" class="btn-ghost btn" class:btn-active={$page.route.id === '/(app)'}> Home </a>
 
 			<a
 				href="/history"
