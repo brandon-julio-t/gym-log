@@ -49,7 +49,13 @@
 			class="flex flex-col justify-center xl:block xl:flex-row xl:justify-start"
 			class:hidden={!showNavbar}
 		>
-			<a href="/" class="btn-ghost btn" class:btn-active={$page.route.id === '/(app)'}> Home </a>
+			<a href="/" class="btn-ghost btn" class:btn-active={$page.route.id === '/(app)'}>Home</a>
+
+			<a
+				href="/programme"
+				class="btn-ghost btn"
+				class:btn-active={$page.route.id === '/(app)/programme'}>Programme</a
+			>
 
 			<a
 				href="/history"

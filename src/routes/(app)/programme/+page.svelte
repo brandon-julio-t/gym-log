@@ -1,0 +1,248 @@
+<script lang="ts">
+	import { invalidate, invalidateAll } from '$app/navigation';
+	import type { PageData } from './$types';
+	import type { IProgramme } from './+page';
+
+	export let data: PageData;
+
+	let programmeToBeEdited: IProgramme | null = null;
+
+	function handleNewProgramme() {
+		const newProgramme = {
+			id: crypto.randomUUID(),
+			name: 'New Programme',
+			movements: [],
+			order: data.programmes.length + 1,
+			created_at: new Date().toISOString()
+		} as IProgramme;
+
+		localStorage.setItem('programmes', JSON.stringify([...data.programmes, newProgramme]));
+
+		invalidateAll();
+	}
+
+	function handleNewMovement(programme: IProgramme) {
+		programme.movements = [...programme.movements, 'New movement'];
+
+		const newProgrammes = data.programmes.map((p) => (p.id === programme.id ? programme : p));
+		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
+
+		invalidateAll();
+	}
+
+	function handleStartEdit(programme: IProgramme) {
+		programmeToBeEdited = { ...programme };
+	}
+
+	function handleDoneEdit() {
+		if (!programmeToBeEdited) return;
+		const newProgrammes = data.programmes.map((p) =>
+			p.id === programmeToBeEdited?.id ? programmeToBeEdited : p
+		);
+		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
+		programmeToBeEdited = null;
+		invalidateAll();
+	}
+
+	function handleCancelEdit() {
+		programmeToBeEdited = null;
+		invalidateAll();
+	}
+
+	function handleDelete(programme: IProgramme) {
+		if (!confirm(`Are you sure to delete programme ${programme.name}?`)) return;
+		const filtered = data.programmes.filter((p) => p.id !== programme.id);
+		localStorage.setItem('programmes', JSON.stringify(filtered));
+		invalidateAll();
+	}
+
+	function handleChangeProgrammeOrder(programme: IProgramme, delta: number) {
+		let newOrder = programme.order + delta;
+
+		if (0 <= newOrder && newOrder < data.programmes.length) {
+			const [neighbour] = data.programmes.filter((p) => p.order === newOrder);
+			programme.order = newOrder;
+			neighbour.order += delta * -1;
+		}
+
+		const newProgrammes = data.programmes.map((p) => (p.id === programme.id ? programme : p));
+		console.log({ newProgrammes });
+		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
+		invalidateAll();
+	}
+
+	function handleChangeMovementOrder(programme: IProgramme, movement: string, delta: number) {
+		const currentIdx = programme.movements.indexOf(movement);
+
+		if (currentIdx === -1) {
+			alert('Invalid index');
+			console.log({ currentIdx });
+			return;
+		}
+
+		for (let i = 0; i < programme.movements.length; i++) {
+			if (i === currentIdx) {
+				const neighbourIdx = i + delta;
+				const temp = programme.movements[i];
+				programme.movements[i] = programme.movements[neighbourIdx];
+				programme.movements[neighbourIdx] = temp;
+				break;
+			}
+		}
+
+		const newProgrammes = data.programmes.map((p) => (p.id === programme.id ? programme : p));
+		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
+		invalidateAll();
+	}
+</script>
+
+<section>
+	<button on:click={handleNewProgramme} class="btn-primary btn">New Programme</button>
+</section>
+
+<section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+	{#each data.programmes as programme}
+		<section class="card shadow">
+			<div class="card-body">
+				{#if programmeToBeEdited?.id === programme.id}
+					<input
+						bind:value={programmeToBeEdited.name}
+						type="text"
+						placeholder="Programme name..."
+						class="input-bordered input w-full"
+					/>
+				{:else}
+					<h2 class="card-title flex justify-between">
+						<div>
+							<button
+								on:click={() => handleChangeProgrammeOrder(programme, -1)}
+								class="btn-outline btn-ghost btn"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor"
+									class="h-6 w-6"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M15.75 19.5L8.25 12l7.5-7.5"
+									/>
+								</svg>
+							</button>
+						</div>
+						<div>{programme.name}</div>
+						<div>
+							<button
+								on:click={() => handleChangeProgrammeOrder(programme, +1)}
+								class="btn-outline btn-ghost btn"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor"
+									class="h-6 w-6"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M8.25 4.5l7.5 7.5-7.5 7.5"
+									/>
+								</svg>
+							</button>
+						</div>
+					</h2>
+				{/if}
+
+				<section>
+					<h3 class="font-medium">Movements</h3>
+					<div class="flex flex-col divide-y">
+						{#each programme.movements as movement, i}
+							<div class="flex items-center justify-between space-x-4 py-4">
+								<div>
+									<span class="mr-2">{i + 1}.</span>
+									{#if programmeToBeEdited?.id === programme.id}
+										<input
+											bind:value={programmeToBeEdited.movements[i]}
+											type="text"
+											placeholder="Movement name..."
+											class="input-bordered input my-2"
+										/>
+									{:else}
+										{movement}
+									{/if}
+								</div>
+								<div class="flex space-x-2">
+									<button
+										on:click={() => handleChangeMovementOrder(programme, movement, -1)}
+										class="btn-outline btn-ghost btn-square btn"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="1.5"
+											stroke="currentColor"
+											class="h-6 w-6"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M4.5 15.75l7.5-7.5 7.5 7.5"
+											/>
+										</svg>
+									</button>
+									<button
+										on:click={() => handleChangeMovementOrder(programme, movement, +1)}
+										class="btn-outline btn-ghost btn-square btn"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="1.5"
+											stroke="currentColor"
+											class="h-6 w-6"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+											/>
+										</svg>
+									</button>
+								</div>
+							</div>
+						{:else}
+							<div>No movement yet.</div>
+						{/each}
+					</div>
+				</section>
+
+				<section class="card-actions justify-end">
+					{#if programmeToBeEdited?.id === programme.id}
+						<button on:click={() => handleDoneEdit()} class="btn-primary btn">Done</button>
+						<button on:click={() => handleCancelEdit()} class="btn-error btn">Cancel</button>
+					{:else}
+						<button on:click={() => handleNewMovement(programme)} class="btn">New Movement</button>
+						<button on:click={() => handleStartEdit(programme)} class="btn-outline btn-ghost btn">
+							Edit
+						</button>
+						<button on:click={() => handleDelete(programme)} class="btn-error btn">Delete</button>
+					{/if}
+				</section>
+			</div>
+		</section>
+	{:else}
+		<section class="card shadow">
+			<div class="card-body">
+				<h2 class="card-title">No programme yet.</h2>
+			</div>
+		</section>
+	{/each}
+</section>
