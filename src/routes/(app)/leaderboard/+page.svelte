@@ -1,8 +1,33 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
+
+	let selectedMovementName = data.currentMovementName;
+
+	$: {
+		if (browser) {
+			const params = new URLSearchParams({ movement: selectedMovementName });
+			const url = `/leaderboard?${params}`;
+			goto(url);
+		}
+	}
 </script>
+
+<section class="mb-4">
+	<div class="mb-2">
+		<label for="movement-name">Filter by movement</label>
+	</div>
+
+	<select bind:value={selectedMovementName} class="input-bordered input" id="movement-name">
+		<option value="all">All</option>
+		{#each data.movementNames as movementName}
+			<option class="capitalize" value={movementName}>{movementName}</option>
+		{/each}
+	</select>
+</section>
 
 <div class="overflow-x-auto">
 	<table class="table-zebra table w-full">
