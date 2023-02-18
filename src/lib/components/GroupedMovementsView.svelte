@@ -5,13 +5,19 @@
 	export let movements: IMovementTransaction[];
 	export let isViewOnly: boolean = false;
 
-	$: movementNames = [...new Set(movements.map((m) => m.name))];
-
+	let movementNames = [] as string[];
 	let loading = true;
 	let bestMovements = new Map<string, IMovementTransaction>();
 	let errorMessage = '';
 
-	onMount(async () => {
+	const dispatch = createEventDispatcher();
+
+	$: {
+		movementNames = [...new Set(movements.map((m) => m.name))];
+		fetchBestMovements();
+	}
+
+	async function fetchBestMovements() {
 		try {
 			const movements = await Promise.all<IMovementTransaction>(
 				movementNames.map(async (name) => {
@@ -37,9 +43,7 @@
 		}
 
 		loading = false;
-	});
-
-	const dispatch = createEventDispatcher();
+	}
 </script>
 
 {#each movementNames as movementName}
