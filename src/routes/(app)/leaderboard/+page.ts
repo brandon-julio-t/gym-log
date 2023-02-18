@@ -58,7 +58,7 @@ async function getMovementNames(supabaseclient: TypedSupabaseClient) {
 		throw error;
 	}
 
-	return [...new Set(data.map((m) => m.name))];
+	return [...new Set(data.map((m) => `${m.name}`.trim().toLowerCase()))];
 }
 
 async function getLeaderboardData(
