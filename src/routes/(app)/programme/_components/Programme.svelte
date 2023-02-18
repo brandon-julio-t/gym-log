@@ -46,24 +46,17 @@
 		invalidateAll();
 	}
 
-	function handleChangeMovementOrder(programme: IProgramme, movement: string, delta: number) {
+	function handleChangeMovementOrder(
+		programme: IProgramme,
+		movement: string,
+		indexToBeSwappedWith: number
+	) {
+		if (indexToBeSwappedWith < 0 || indexToBeSwappedWith >= programme.movements.length) return;
+
 		const currentIdx = programme.movements.indexOf(movement);
-
-		if (currentIdx === -1) {
-			alert('Invalid index');
-			console.log({ currentIdx });
-			return;
-		}
-
-		for (let i = 0; i < programme.movements.length; i++) {
-			if (i === currentIdx) {
-				const neighbourIdx = i + delta;
-				const temp = programme.movements[i];
-				programme.movements[i] = programme.movements[neighbourIdx];
-				programme.movements[neighbourIdx] = temp;
-				break;
-			}
-		}
+		const temp = programme.movements[indexToBeSwappedWith];
+		programme.movements[indexToBeSwappedWith] = movement;
+		programme.movements[currentIdx] = temp;
 
 		const newProgrammes = data.programmes.map((p) => (p.id === programme.id ? programme : p));
 		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
@@ -145,7 +138,7 @@
 						{#if !programmeToBeEdited}
 							<div class="flex space-x-2">
 								<button
-									on:click={() => handleChangeMovementOrder(programme, movement, -1)}
+									on:click={() => handleChangeMovementOrder(programme, movement, i - 1)}
 									class="btn-outline btn-ghost btn-square btn"
 								>
 									<svg
@@ -164,7 +157,7 @@
 									</svg>
 								</button>
 								<button
-									on:click={() => handleChangeMovementOrder(programme, movement, +1)}
+									on:click={() => handleChangeMovementOrder(programme, movement, i + 1)}
 									class="btn-outline btn-ghost btn-square btn"
 								>
 									<svg
