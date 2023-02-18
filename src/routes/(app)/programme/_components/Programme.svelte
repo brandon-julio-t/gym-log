@@ -62,6 +62,17 @@
 		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
 		invalidateAll();
 	}
+
+	function handleDeleteMovement(position: number) {
+		const programme = programmeToBeEdited;
+		if (!programme) return;
+		const movement = programme.movements[position];
+		if (!confirm(`Are you sure to delete movement ${movement}?`)) return;
+		programme.movements = programme.movements.filter((_, i) => i !== position);
+		const newProgrammes = data.programmes.map((p) => (p.id === programme.id ? programme : p));
+		localStorage.setItem('programmes', JSON.stringify(newProgrammes));
+		invalidateAll();
+	}
 </script>
 
 <section class="card shadow">
@@ -131,6 +142,9 @@
 									placeholder="Movement name..."
 									class="input-bordered input my-2"
 								/>
+								<button on:click={() => handleDeleteMovement(i)} class="btn-error btn"
+									>Delete</button
+								>
 							{:else}
 								{movement}
 							{/if}
